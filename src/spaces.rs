@@ -102,4 +102,26 @@ mod tests {
         assert!(b.contains(&s));
         assert!(!b.contains(&[2.0, 0.0]));
     }
+
+    #[test]
+    fn discrete_shape_returns_n() {
+        let d = Discrete::new(10);
+        assert_eq!(d.shape(), vec![10]);
+    }
+
+    #[test]
+    fn box_wrong_length_rejected() {
+        let b = Box::new(vec![0.0, 0.0], vec![1.0, 1.0], vec![2]);
+        assert!(!b.contains(&[0.5]));
+        assert!(!b.contains(&[0.5, 0.5, 0.5]));
+    }
+
+    #[test]
+    fn discrete_zero_not_contains_negative() {
+        let d = Discrete::new(3);
+        assert!(!d.contains(&[-1.0]));
+        assert!(!d.contains(&[3.0]));
+        assert!(d.contains(&[0.0]));
+        assert!(d.contains(&[2.0]));
+    }
 }

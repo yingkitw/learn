@@ -68,4 +68,45 @@ mod tests {
         let batch = buf.sample(1, &mut rng).unwrap();
         assert_eq!(batch.len(), 1);
     }
+
+    #[test]
+    fn test_buffer_sample_returns_none_when_empty() {
+        let buf: ReplayBuffer<f32, usize> = ReplayBuffer::new(10);
+        let mut rng = StdRng::seed_from_u64(0);
+        assert!(buf.sample(1, &mut rng).is_none());
+    }
+
+    #[test]
+    fn test_buffer_respects_capacity() {
+        let mut buf: ReplayBuffer<f32, usize> = ReplayBuffer::new(2);
+        for i in 0..5 {
+            buf.add(Transition {
+                obs: i as f32,
+                action: i,
+                reward: i as f32,
+                next_obs: (i + 1) as f32,
+                terminated: false,
+                truncated: false,
+            });
+        }
+        assert_eq!(buf.len(), 2);
+    }
+
+    #[test]
+    fn test_buffer_batch_size_limited_by_length() {
+        let mut buf: ReplayBuffer<f32, usize> = ReplayBuffer::new(10);
+        let mut rng = StdRng::seed_from_u64(0);
+        for i in 0..3 {
+            buf.add(Transition {
+                obs: i as f32,
+                action: i,
+                reward: i as f32,
+                next_obs: (i + 1) as f32,
+                terminated: false,
+                truncated: false,
+            });
+        }
+        let batch = buf.sample(100, &mut rng).unwrap();
+        assert_eq!(batch.len(), 3);
+    }
 }

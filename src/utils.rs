@@ -50,4 +50,36 @@ mod tests {
     fn test_one_hot() {
         assert_eq!(one_hot(2, 4), vec![0.0, 0.0, 1.0, 0.0]);
     }
+
+    #[test]
+    fn test_one_hot_out_of_bounds() {
+        assert_eq!(one_hot(10, 4), vec![0.0, 0.0, 0.0, 0.0]);
+    }
+
+    #[test]
+    fn test_compute_returns_single_reward() {
+        let r = vec![5.0];
+        let g = compute_returns(&r, 0.9);
+        assert!((g[0] - 5.0).abs() < 1e-6);
+    }
+
+    #[test]
+    fn test_epsilon_greedy_zero_epsilon() {
+        let mut rng = StdRng::seed_from_u64(0);
+        let q = vec![1.0, 3.0, 2.0];
+        let action = epsilon_greedy(&q, 0.0, &mut rng);
+        assert_eq!(action, 1); // always best
+    }
+
+    #[test]
+    fn test_epsilon_greedy_full_epsilon() {
+        let mut rng = StdRng::seed_from_u64(42);
+        let q = vec![1.0, 3.0, 2.0];
+        let mut actions = std::collections::HashSet::new();
+        for _ in 0..50 {
+            actions.insert(epsilon_greedy(&q, 1.0, &mut rng));
+        }
+        // With epsilon=1.0, should explore all actions over many samples
+        assert!(actions.len() > 1);
+    }
 }

@@ -194,4 +194,46 @@ mod tests {
         let sum: f32 = p.iter().sum();
         assert!((sum - 1.0).abs() < 1e-5);
     }
+
+    #[test]
+    fn test_log_softmax() {
+        let p = log_softmax(&[1.0, 2.0, 3.0]);
+        let exp_sum: f32 = p.iter().map(|&v| v.exp()).sum();
+        assert!((exp_sum - 1.0).abs() < 1e-5);
+    }
+
+    #[test]
+    fn test_cross_entropy_grad() {
+        let logits = vec![0.0, 1.0, 0.0];
+        let grad = cross_entropy_grad(&logits, 1);
+        // The target class gradient should be prob - 1.0 (negative or close to 0)
+        assert!(grad[1] < 0.0);
+    }
+
+    #[test]
+    fn test_mse_grad() {
+        let pred = vec![1.0, 2.0, 3.0];
+        let target = vec![2.0, 2.0, 2.0];
+        let grad = mse_grad(&pred, &target);
+        assert_eq!(grad, vec![-2.0, 0.0, 2.0]);
+    }
+
+    #[test]
+    fn test_single_layer_mlp() {
+        let mut rng = StdRng::seed_from_u64(0);
+        let mut mlp = MLP::new(&[2, 3], &mut rng);
+        let out = mlp.forward(&[1.0, 0.5]);
+        assert_eq!(out.len(), 3);
+        let grads = mlp.backward(&[1.0, 0.5, -0.5]);
+        assert_eq!(grads.len(), 1);
+    }
+
+    #[test]
+    fn test_mlp_clone_independence() {
+        let mut rng = StdRng::seed_from_u64(0);
+        let mut mlp1 = MLP::new(&[2, 3], &mut rng);
+        let mut mlp2 = mlp1.clone();
+        mlp1.layers[0].weights[0] = 999.0;
+        assert_ne!(mlp1.layers[0].weights[0], mlp2.layers[0].weights[0]);
+    }
 }
