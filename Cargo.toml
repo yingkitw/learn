@@ -7,7 +7,7 @@ repository = "https://github.com/yingkitw/learn"
 documentation = "https://docs.rs/learn"
 license = "Apache-2.0"
 description = "A minimal reinforcement learning library written in Rust from scratch."
-categories = ["science", "machine-learning"]
+categories = ["science", "algorithms"]
 keywords = ["reinforcement", "rl", "machine-learning"]
 
 [dependencies]
